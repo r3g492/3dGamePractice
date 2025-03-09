@@ -1,4 +1,4 @@
 package game
 
-func GameLogic(dt float32) {
+func Logic(dt float32) {
 }
