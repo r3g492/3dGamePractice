@@ -33,24 +33,36 @@ func RaylibClose() {
 }
 
 func RaylibLoop(gameLogic func(dt float32)) {
+	shader := rl.LoadShader("resources/shaders/sun.vs", "resources/shaders/sun.fs")
+	loc := rl.GetShaderLocation(shader, "lightPos")
+	lightPos := rl.NewVector3(0, 0, 50)
+
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
-
 		gameLogic(dt)
-
 		rl.UpdateCamera(&camera, rl.CameraOrbital)
 
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
-
 		rl.BeginMode3D(camera)
-		rl.DrawCube(rl.NewVector3(0, 0, 0), 1, 1, 1, rl.Red)
-		rl.DrawCubeWires(rl.NewVector3(0, 0, 0), 1, 1, 1, rl.Maroon)
+
+		rl.SetShaderValueV(
+			shader,
+			loc,
+			[]float32{lightPos.X, lightPos.Y, lightPos.Z},
+			rl.ShaderUniformVec3,
+			1,
+		)
+
+		rl.BeginShaderMode(shader)
+		sunColor := rl.NewColor(255, 223, 0, 255)
+		rl.DrawSphere(rl.NewVector3(0, 0, 0), 1, sunColor)
+		rl.EndShaderMode()
+
 		rl.DrawGrid(10, 1.0)
 		rl.EndMode3D()
 
 		rl.DrawText("Congrats! You created your first 3D box!", 10, 10, 20, rl.DarkGray)
-
 		rl.EndDrawing()
 	}
 }
