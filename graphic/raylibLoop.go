@@ -20,7 +20,7 @@ func RaylibSet(windowWidth, windowHeight, targetFrame int) {
 	rl.SetTargetFPS(raylibTargetFrame)
 
 	camera = rl.Camera3D{
-		Position:   rl.NewVector3(4.0, 2.0, 4.0),
+		Position:   rl.NewVector3(10.0, 10.0, 0.0),
 		Target:     rl.NewVector3(0.0, 0.0, 0.0),
 		Up:         rl.NewVector3(0.0, 1.0, 0.0),
 		Fovy:       45.0,
@@ -40,7 +40,7 @@ func RaylibLoop(gameLogic func(dt float32)) {
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
 		gameLogic(dt)
-		rl.UpdateCamera(&camera, rl.CameraOrbital)
+		// rl.UpdateCamera(&camera, rl.CameraOrbital)
 
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
@@ -54,12 +54,27 @@ func RaylibLoop(gameLogic func(dt float32)) {
 			1,
 		)
 
-		rl.BeginShaderMode(shader)
-		sunColor := rl.NewColor(255, 223, 0, 255)
-		rl.DrawSphere(rl.NewVector3(0, 0, 0), 1, sunColor)
-		rl.EndShaderMode()
+		// rl.BeginShaderMode(shader)
+		// sunColor := rl.NewColor(255, 223, 0, 255)
+		// rl.DrawSphere(rl.NewVector3(0, -200, 0), 100, sunColor)
+		// rl.EndShaderMode()
 
 		rl.DrawGrid(10, 1.0)
+
+		rl.PushMatrix()
+		rl.Rotatef(30, 0, 1, 0)
+		rl.DrawCubeWires(
+			rl.Vector3{
+				0,
+				0,
+				0,
+			},
+			5,
+			5,
+			10,
+			rl.Black,
+		)
+		rl.PopMatrix()
 		rl.EndMode3D()
 
 		rl.DrawText("Congrats! You created your first 3D box!", 10, 10, 20, rl.DarkGray)
