@@ -2,6 +2,7 @@ package graphic
 
 import (
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"math"
 )
 
 var (
@@ -37,6 +38,9 @@ func RaylibLoop(gameLogic func(dt float32)) {
 	loc := rl.GetShaderLocation(shader, "lightPos")
 	lightPos := rl.NewVector3(0, 0, 50)
 
+	var playerAngle float32 = 0
+	var playerSpeed float32 = 0
+	playerPosition := rl.Vector3{X: 0, Y: 0, Z: 0}
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
 		gameLogic(dt)
@@ -54,15 +58,39 @@ func RaylibLoop(gameLogic func(dt float32)) {
 			1,
 		)
 
-		// rl.BeginShaderMode(shader)
-		// sunColor := rl.NewColor(255, 223, 0, 255)
-		// rl.DrawSphere(rl.NewVector3(0, -200, 0), 100, sunColor)
-		// rl.EndShaderMode()
+		if rl.IsKeyDown(rl.KeyW) {
+			playerSpeed += 5 * dt
+		}
+
+		if rl.IsKeyDown(rl.KeyS) {
+			playerSpeed -= 90 * dt
+			if playerSpeed <= 0 {
+				playerSpeed = 0
+			}
+		}
+
+		if rl.IsKeyDown(rl.KeyA) {
+			playerAngle += 90 * dt
+		}
+
+		if rl.IsKeyDown(rl.KeyD) {
+			playerAngle -= 90 * dt
+		}
+
+		rad := float64(playerAngle) * (math.Pi / 180.0)
+		forwardDir := rl.Vector3{
+			X: float32(math.Sin(rad)),
+			Z: float32(math.Cos(rad)),
+		}
+
+		playerPosition.X += forwardDir.X * playerSpeed * dt
+		playerPosition.Z += forwardDir.Z * playerSpeed * dt
 
 		rl.DrawGrid(10, 1.0)
 
 		rl.PushMatrix()
-		rl.Rotatef(30, 0, 1, 0)
+		rl.Translatef(playerPosition.X, playerPosition.Y, playerPosition.Z)
+		rl.Rotatef(playerAngle, 0, 1, 0)
 		rl.DrawCubeWires(
 			rl.Vector3{
 				0,
