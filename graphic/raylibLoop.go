@@ -35,6 +35,7 @@ func RaylibClose() {
 
 func RaylibLoop(gameLogic func(dt float32)) {
 	var player = game.GetPlayer()
+	var objects *map[int32]game.Object = game.GetObjectMap()
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
 
@@ -78,6 +79,9 @@ func RaylibLoop(gameLogic func(dt float32)) {
 
 		// draw cubes
 		DrawCube(player.Cube, rl.Red)
+		for _, obj := range *objects {
+			DrawCube(obj.UnitCube(), rl.Blue)
+		}
 
 		rl.EndMode3D()
 		rl.EndDrawing()
