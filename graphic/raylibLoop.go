@@ -1,8 +1,8 @@
 package graphic
 
 import (
+	"3dGamePractice/game"
 	rl "github.com/gen2brain/raylib-go/raylib"
-	"math"
 )
 
 var (
@@ -34,78 +34,69 @@ func RaylibClose() {
 }
 
 func RaylibLoop(gameLogic func(dt float32)) {
-	shader := rl.LoadShader("resources/shaders/sun.vs", "resources/shaders/sun.fs")
-	loc := rl.GetShaderLocation(shader, "lightPos")
-	lightPos := rl.NewVector3(0, 0, 50)
-
-	var playerAngle float32 = 0
-	var playerSpeed float32 = 0
-	playerPosition := rl.Vector3{X: 0, Y: 0, Z: 0}
+	var player = game.GetPlayer()
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
+
+		// do game logics
 		gameLogic(dt)
-		// rl.UpdateCamera(&camera, rl.CameraOrbital)
+		player.Update(dt)
+
+		// update camera by player
+		camera.Position.X = player.Cube.GamePosX - 10
+		camera.Position.Z = player.Cube.GamePosY
+		camera.Target.X = player.Cube.GamePosX
+		camera.Target.Z = player.Cube.GamePosY
 
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
 		rl.BeginMode3D(camera)
 
-		rl.SetShaderValueV(
-			shader,
-			loc,
-			[]float32{lightPos.X, lightPos.Y, lightPos.Z},
-			rl.ShaderUniformVec3,
-			1,
-		)
-
-		if rl.IsKeyDown(rl.KeyW) {
-			playerSpeed += 5 * dt
-		}
-
-		if rl.IsKeyDown(rl.KeyS) {
-			playerSpeed -= 90 * dt
-			if playerSpeed <= 0 {
-				playerSpeed = 0
-			}
-		}
-
-		if rl.IsKeyDown(rl.KeyA) {
-			playerAngle += 90 * dt
-		}
-
-		if rl.IsKeyDown(rl.KeyD) {
-			playerAngle -= 90 * dt
-		}
-
-		rad := float64(playerAngle) * (math.Pi / 180.0)
-		forwardDir := rl.Vector3{
-			X: float32(math.Sin(rad)),
-			Z: float32(math.Cos(rad)),
-		}
-
-		playerPosition.X += forwardDir.X * playerSpeed * dt
-		playerPosition.Z += forwardDir.Z * playerSpeed * dt
-
+		// extra
 		rl.DrawGrid(10, 1.0)
-
-		rl.PushMatrix()
-		rl.Translatef(playerPosition.X, playerPosition.Y, playerPosition.Z)
-		rl.Rotatef(playerAngle, 0, 1, 0)
-		rl.DrawCubeWires(
-			rl.Vector3{
-				0,
-				0,
-				0,
-			},
-			5,
-			5,
+		rl.DrawText(
+			"Congrats! You created your first 3D box!",
 			10,
-			rl.Black,
+			10,
+			20,
+			rl.DarkGray,
 		)
-		rl.PopMatrix()
-		rl.EndMode3D()
 
-		rl.DrawText("Congrats! You created your first 3D box!", 10, 10, 20, rl.DarkGray)
+		// do inputs
+		if rl.IsKeyDown(rl.KeyW) {
+			game.PlayerSpeedUp(dt)
+		}
+		if rl.IsKeyDown(rl.KeyS) {
+			game.PlayerSpeedDown(dt)
+		}
+		if rl.IsKeyDown(rl.KeyA) {
+			game.PlayerRotateLeft(dt)
+		}
+		if rl.IsKeyDown(rl.KeyD) {
+			game.PlayerRotateRight(dt)
+		}
+
+		// draw cubes
+		DrawCube(player.Cube, rl.Red)
+
+		rl.EndMode3D()
 		rl.EndDrawing()
 	}
+}
+
+func DrawCube(
+	cube game.Cube,
+	color rl.Color,
+) {
+	rl.PushMatrix()
+	rl.Translatef(cube.GamePosX, 0, cube.GamePosY)
+	rl.Rotatef(cube.Angle, 0, 1, 0)
+	rl.DrawCubeWires(
+		rl.Vector3{},
+		cube.Width,
+		cube.Height,
+		cube.Length,
+		color,
+	)
+	rl.PopMatrix()
 }

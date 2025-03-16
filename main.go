@@ -18,6 +18,7 @@ func main() {
 	)
 	defer graphic.RaylibClose()
 
+	game.Init()
 	graphic.RaylibLoop(
 		game.Logic,
 	)
