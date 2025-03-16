@@ -26,18 +26,3 @@ func Init() {
 func Logic(dt float32) {
 
 }
-
-type Cube struct {
-	GamePosX float32
-	GamePosY float32
-	Angle    float32
-	Width    float32
-	Height   float32
-	Length   float32
-}
-
-type Object interface {
-	UnitCube() Cube
-	Update(dt float32)
-	Id() int32
-}
