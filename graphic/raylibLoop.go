@@ -49,6 +49,9 @@ func RaylibLoop(gameLogic func(dt float32)) {
 		camera.Target.X = player.Cube.GamePosX
 		camera.Target.Z = player.Cube.GamePosY
 
+		// Mouse picking logic
+		mouseRay := rl.GetMouseRay(rl.GetMousePosition(), camera)
+
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
 		rl.BeginMode3D(camera)
@@ -80,7 +83,12 @@ func RaylibLoop(gameLogic func(dt float32)) {
 		// draw cubes
 		DrawCube(player.Cube, rl.Red)
 		for _, obj := range *objects {
-			DrawCube(obj.UnitCube(), rl.Blue)
+			cubeColor := rl.Blue
+			if RayHitsCube(mouseRay, obj.UnitCube()) {
+				cubeColor = rl.Red
+			}
+			DrawCube(obj.UnitCube(), cubeColor)
+
 		}
 
 		rl.EndMode3D()
@@ -103,4 +111,20 @@ func DrawCube(
 		color,
 	)
 	rl.PopMatrix()
+}
+
+func RayHitsCube(ray rl.Ray, cube game.Cube) bool {
+	bounds := rl.NewBoundingBox(
+		rl.NewVector3(
+			cube.GamePosX-cube.Width/2,
+			-cube.Height/2,
+			cube.GamePosY-cube.Length/2,
+		),
+		rl.NewVector3(
+			cube.GamePosX+cube.Width/2,
+			cube.Height/2,
+			cube.GamePosY+cube.Length/2,
+		),
+	)
+	return rl.GetRayCollisionBox(ray, bounds).Hit
 }
