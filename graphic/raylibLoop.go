@@ -10,6 +10,10 @@ var (
 	raylibWindowHeight int32
 	raylibTargetFrame  int32
 	camera             rl.Camera3D
+
+	dragging       bool
+	dragStartPoint rl.Vector2
+	dragEndPoint   rl.Vector2
 )
 
 func RaylibSet(windowWidth, windowHeight, targetFrame int) {
@@ -36,6 +40,7 @@ func RaylibClose() {
 func RaylibLoop(gameLogic func(dt float32)) {
 	var player = game.GetPlayer()
 	var objects *map[int32]game.Object = game.GetObjectMap()
+
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
 
@@ -50,7 +55,7 @@ func RaylibLoop(gameLogic func(dt float32)) {
 		camera.Target.Z = player.Cube.GamePosY
 
 		// Mouse picking logic
-		mouseRay := rl.GetMouseRay(rl.GetMousePosition(), camera)
+		mouseRay := rl.GetScreenToWorldRay(rl.GetMousePosition(), camera)
 
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
@@ -80,6 +85,19 @@ func RaylibLoop(gameLogic func(dt float32)) {
 			game.PlayerRotateRight(dt)
 		}
 
+		if rl.IsMouseButtonPressed(rl.MouseLeftButton) {
+			dragging = true
+			dragStartPoint = rl.GetMousePosition()
+		}
+
+		if rl.IsMouseButtonReleased(rl.MouseLeftButton) {
+			dragging = false
+		}
+
+		if dragging {
+			dragEndPoint = rl.GetMousePosition()
+		}
+
 		// draw cubes
 		DrawCube(player.Cube, rl.Red)
 		for _, obj := range *objects {
@@ -92,6 +110,11 @@ func RaylibLoop(gameLogic func(dt float32)) {
 		}
 
 		rl.EndMode3D()
+
+		if dragging {
+			DrawDragRectangle(dragStartPoint, dragEndPoint, rl.Green)
+		}
+
 		rl.EndDrawing()
 	}
 }
@@ -127,4 +150,23 @@ func RayHitsCube(ray rl.Ray, cube game.Cube) bool {
 		),
 	)
 	return rl.GetRayCollisionBox(ray, bounds).Hit
+}
+
+func DrawDragRectangle(start, end rl.Vector2, color rl.Color) {
+	x := start.X
+	y := start.Y
+	width := end.X - start.X
+	height := end.Y - start.Y
+
+	if width < 0 {
+		x += width
+		width *= -1
+	}
+
+	if height < 0 {
+		y += height
+		height *= -1
+	}
+
+	rl.DrawRectangleLines(int32(x), int32(y), int32(width), int32(height), color)
 }
