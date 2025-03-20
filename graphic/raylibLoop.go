@@ -3,6 +3,7 @@ package graphic
 import (
 	"3dGamePractice/game"
 	rl "github.com/gen2brain/raylib-go/raylib"
+	"math"
 )
 
 var (
@@ -59,6 +60,28 @@ func RaylibLoop(gameLogic func(dt float32)) {
 
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.RayWhite)
+
+		if dragging {
+			DrawDragRectangle(dragStartPoint, dragEndPoint, rl.Green)
+		}
+
+		selectedCubes := make(map[int32]bool)
+
+		if dragging {
+			for id := range selectedCubes {
+				delete(selectedCubes, id)
+			}
+
+			for id, obj := range *objects {
+				cubeWorldPosition := rl.NewVector3(obj.UnitCube().GamePosX, 0, obj.UnitCube().GamePosY)
+				screenPosition := rl.GetWorldToScreen(cubeWorldPosition, camera)
+
+				if RectangleContainsPoint(dragStartPoint, dragEndPoint, screenPosition) {
+					selectedCubes[id] = true
+				}
+			}
+		}
+
 		rl.BeginMode3D(camera)
 
 		// extra
@@ -102,18 +125,18 @@ func RaylibLoop(gameLogic func(dt float32)) {
 		DrawCube(player.Cube, rl.Red)
 		for _, obj := range *objects {
 			cubeColor := rl.Blue
-			if RayHitsCube(mouseRay, obj.UnitCube()) {
+
+			if selectedCubes[obj.Id()] == true {
 				cubeColor = rl.Red
+			}
+			if RayHitsCube(mouseRay, obj.UnitCube()) {
+				cubeColor = rl.Green
 			}
 			DrawCube(obj.UnitCube(), cubeColor)
 
 		}
 
 		rl.EndMode3D()
-
-		if dragging {
-			DrawDragRectangle(dragStartPoint, dragEndPoint, rl.Green)
-		}
 
 		rl.EndDrawing()
 	}
@@ -169,4 +192,13 @@ func DrawDragRectangle(start, end rl.Vector2, color rl.Color) {
 	}
 
 	rl.DrawRectangleLines(int32(x), int32(y), int32(width), int32(height), color)
+}
+
+func RectangleContainsPoint(start, end, point rl.Vector2) bool {
+	minX := float32(math.Min(float64(start.X), float64(end.X)))
+	maxX := float32(math.Max(float64(start.X), float64(end.X)))
+	minY := float32(math.Min(float64(start.Y), float64(end.Y)))
+	maxY := float32(math.Max(float64(start.Y), float64(end.Y)))
+
+	return point.X >= minX && point.X <= maxX && point.Y >= minY && point.Y <= maxY
 }
