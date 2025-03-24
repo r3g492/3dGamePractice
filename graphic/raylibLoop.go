@@ -41,6 +41,7 @@ func RaylibClose() {
 func RaylibLoop(gameLogic func(dt float32)) {
 	var player = game.GetPlayer()
 	var objects *map[int32]game.Object = game.GetObjectMap()
+	const zoomSpeed float32 = 2.0
 
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
@@ -106,6 +107,15 @@ func RaylibLoop(gameLogic func(dt float32)) {
 		}
 		if rl.IsKeyDown(rl.KeyD) {
 			game.PlayerRotateRight(dt)
+		}
+
+		wheel := rl.GetMouseWheelMove()
+		if wheel != 0 {
+			camera.Position = rl.Vector3Add(camera.Position, rl.Vector3Scale(rl.Vector3Normalize(rl.Vector3Subtract(camera.Target, camera.Position)), wheel*zoomSpeed))
+		}
+
+		if rl.IsMouseButtonReleased(rl.MouseLeftButton) {
+			dragging = false
 		}
 
 		if rl.IsMouseButtonPressed(rl.MouseLeftButton) {
