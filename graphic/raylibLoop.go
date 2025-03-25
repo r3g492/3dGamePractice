@@ -86,7 +86,7 @@ func RaylibLoop(gameLogic func(dt float32)) {
 		rl.BeginMode3D(camera)
 
 		// extra
-		rl.DrawGrid(10, 1.0)
+		rl.DrawGrid(1000, 1.0)
 		rl.DrawText(
 			"Congrats! You created your first 3D box!",
 			10,
