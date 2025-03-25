@@ -87,27 +87,28 @@ func RaylibLoop(gameLogic func(dt float32)) {
 
 		// extra
 		rl.DrawGrid(1000, 1.0)
-		rl.DrawText(
-			"Congrats! You created your first 3D box!",
-			10,
-			10,
-			20,
-			rl.DarkGray,
-		)
 
-		// do inputs
+		// do movement inputs
 		if rl.IsKeyDown(rl.KeyW) {
-			game.PlayerSpeedUp(dt)
+			game.PlayerMoveUp(dt)
 		}
 		if rl.IsKeyDown(rl.KeyS) {
-			game.PlayerSpeedDown(dt)
+			game.PlayerMoveDown(dt)
 		}
 		if rl.IsKeyDown(rl.KeyA) {
-			game.PlayerRotateLeft(dt)
+			game.PlayerMoveLeft(dt)
 		}
 		if rl.IsKeyDown(rl.KeyD) {
-			game.PlayerRotateRight(dt)
+			game.PlayerMoveRight(dt)
 		}
+		if !rl.IsKeyDown(rl.KeyW) &&
+			!rl.IsKeyDown(rl.KeyS) &&
+			!rl.IsKeyDown(rl.KeyA) &&
+			!rl.IsKeyDown(rl.KeyD) {
+			game.PlayerMoveStop(dt)
+		}
+		game.PlayerMoveCalc(dt)
+		game.PlayerMoveClear(dt)
 
 		wheel := rl.GetMouseWheelMove()
 		if wheel != 0 {
