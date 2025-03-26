@@ -94,7 +94,7 @@ func PlayerMoveCalc(dt float32) {
 
 	angleDiff := shortestAngleDistance(player.Cube.Angle, targetAngle)
 
-	rotationSpeed := float32(200)
+	rotationSpeed := float32(1000)
 
 	angleChange := rotationSpeed * dt
 	if math.Abs(float64(angleDiff)) < float64(angleChange) {

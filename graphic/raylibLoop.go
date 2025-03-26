@@ -43,6 +43,8 @@ func RaylibLoop(gameLogic func(dt float32)) {
 	var objects *map[int32]game.Object = game.GetObjectMap()
 	const zoomSpeed float32 = 2.0
 
+	selectedCubeIds := make(map[int32]bool)
+
 	for !rl.WindowShouldClose() {
 		dt := rl.GetFrameTime()
 
@@ -66,11 +68,9 @@ func RaylibLoop(gameLogic func(dt float32)) {
 			DrawDragRectangle(dragStartPoint, dragEndPoint, rl.Green)
 		}
 
-		selectedCubes := make(map[int32]bool)
-
 		if dragging {
-			for id := range selectedCubes {
-				delete(selectedCubes, id)
+			for id := range selectedCubeIds {
+				delete(selectedCubeIds, id)
 			}
 
 			for id, obj := range *objects {
@@ -78,7 +78,7 @@ func RaylibLoop(gameLogic func(dt float32)) {
 				screenPosition := rl.GetWorldToScreen(cubeWorldPosition, camera)
 
 				if RectangleContainsPoint(dragStartPoint, dragEndPoint, screenPosition) {
-					selectedCubes[id] = true
+					selectedCubeIds[id] = true
 				}
 			}
 		}
@@ -137,7 +137,7 @@ func RaylibLoop(gameLogic func(dt float32)) {
 		for _, obj := range *objects {
 			cubeColor := rl.Blue
 
-			if selectedCubes[obj.Id()] == true {
+			if selectedCubeIds[obj.Id()] == true {
 				cubeColor = rl.Red
 			}
 			if RayHitsCube(mouseRay, obj.UnitCube()) {
