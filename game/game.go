@@ -1,12 +1,17 @@
 package game
 
 var (
-	objectMap = make(map[int32]Object)
-	player    PlayerShip
+	allyMap  = make(map[int32]Object)
+	enemyMap = make(map[int32]Object)
+	player   PlayerShip
 )
 
-func GetObjectMap() *map[int32]Object {
-	return &objectMap
+func GetAllyMap() *map[int32]Object {
+	return &allyMap
+}
+
+func GetEnemyMap() *map[int32]Object {
+	return &enemyMap
 }
 
 func GetPlayer() *PlayerShip {
@@ -26,9 +31,21 @@ func Init() {
 		},
 	}
 
+	allyMap[0] = &Minion{
+		id: 0,
+		Cube: Cube{
+			GamePosX: 0,
+			GamePosY: 10,
+			Angle:    30,
+			Width:    1,
+			Height:   1,
+			Length:   1,
+		},
+	}
+
 	// Example objects
-	objectMap[1] = &Enemy{
-		id: 1,
+	enemyMap[0] = &Enemy{
+		id: 0,
 		Cube: Cube{
 			GamePosX: 3,
 			GamePosY: 2,
@@ -39,8 +56,8 @@ func Init() {
 		},
 	}
 
-	objectMap[2] = &Enemy{
-		id: 2,
+	enemyMap[1] = &Enemy{
+		id: 1,
 		Cube: Cube{
 			GamePosX: -4,
 			GamePosY: -3,
@@ -51,8 +68,8 @@ func Init() {
 		},
 	}
 
-	objectMap[3] = &Enemy{
-		id: 3,
+	enemyMap[2] = &Enemy{
+		id: 2,
 		Cube: Cube{
 			GamePosX: 5,
 			GamePosY: -1,

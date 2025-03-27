@@ -40,7 +40,9 @@ func RaylibClose() {
 
 func RaylibLoop(gameLogic func(dt float32)) {
 	var player = game.GetPlayer()
-	var objects *map[int32]game.Object = game.GetObjectMap()
+	var allies *map[int32]game.Object = game.GetAllyMap()
+	var enemies = game.GetEnemyMap()
+
 	const zoomSpeed float32 = 2.0
 
 	selectedCubeIds := make(map[int32]bool)
@@ -73,7 +75,7 @@ func RaylibLoop(gameLogic func(dt float32)) {
 				delete(selectedCubeIds, id)
 			}
 
-			for id, obj := range *objects {
+			for id, obj := range *allies {
 				cubeWorldPosition := rl.NewVector3(obj.UnitCube().GamePosX, 0, obj.UnitCube().GamePosY)
 				screenPosition := rl.GetWorldToScreen(cubeWorldPosition, camera)
 
@@ -134,7 +136,7 @@ func RaylibLoop(gameLogic func(dt float32)) {
 
 		// draw cubes
 		DrawCube(player.Cube, rl.Red)
-		for _, obj := range *objects {
+		for _, obj := range *allies {
 			cubeColor := rl.Blue
 
 			if selectedCubeIds[obj.Id()] == true {
@@ -145,6 +147,10 @@ func RaylibLoop(gameLogic func(dt float32)) {
 			}
 			DrawCube(obj.UnitCube(), cubeColor)
 
+		}
+
+		for _, obj := range *enemies {
+			DrawCube(obj.UnitCube(), rl.Purple)
 		}
 
 		rl.EndMode3D()
