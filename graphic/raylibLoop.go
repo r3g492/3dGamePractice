@@ -40,7 +40,7 @@ func RaylibClose() {
 
 func RaylibLoop(gameLogic func(dt float32)) {
 	var player = game.GetPlayer()
-	var allies *map[int32]game.Object = game.GetAllyMap()
+	var allies = game.GetAllyMap()
 	var enemies = game.GetEnemyMap()
 
 	const zoomSpeed float32 = 2.0
@@ -132,6 +132,15 @@ func RaylibLoop(gameLogic func(dt float32)) {
 
 		if dragging {
 			dragEndPoint = rl.GetMousePosition()
+		}
+
+		if rl.IsMouseButtonDown(rl.MouseRightButton) {
+			var selectedAllyIDs []int32
+			for id, selected := range selectedCubeIds {
+				if selected {
+					selectedAllyIDs = append(selectedAllyIDs, id)
+				}
+			}
 		}
 
 		// draw cubes
