@@ -119,6 +119,11 @@ func RaylibLoop(gameLogic func(dt float32)) {
 
 		if rl.IsMouseButtonReleased(rl.MouseLeftButton) {
 			dragging = false
+			for id, obj := range *allies {
+				if RayHitsCube(mouseRay, obj.UnitCube()) {
+					selectedCubeIds[id] = true
+				}
+			}
 		}
 
 		if rl.IsMouseButtonPressed(rl.MouseLeftButton) {
@@ -149,13 +154,9 @@ func RaylibLoop(gameLogic func(dt float32)) {
 			cubeColor := rl.Blue
 
 			if selectedCubeIds[obj.Id()] == true {
-				cubeColor = rl.Red
-			}
-			if RayHitsCube(mouseRay, obj.UnitCube()) {
 				cubeColor = rl.Green
 			}
 			DrawCube(obj.UnitCube(), cubeColor)
-
 		}
 
 		for _, obj := range *enemies {
